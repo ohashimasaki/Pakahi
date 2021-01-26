@@ -447,7 +447,7 @@ public class Worksheet {
 
         double h = (double)time.getHour() / 24;
         double m = (double)time.getMinute() / (24 * 60);
-        double s = (double)time.getSecond() / (24 * 60 *60);
+        double s = (double)time.getSecond() / (24 * 60 * 60);
         return h + m + s;
 
     }
