@@ -16,10 +16,11 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import java.time.chrono.ChronoLocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.poi.ss.usermodel.DateUtil;
+
 
 
 
@@ -158,7 +159,7 @@ public class Worksheet {
 
         //https://poi.apache.org/apidocs/4.1/
         // Java LocalDateTime を Excel のシリアル値に変換し、文字列として挿入;
-        double serial = DateUtil.getExcelDate(value);
+        double serial = getDateSerial(value) + getTimeSerial(value);
         setCellValueContent(address, String.valueOf(serial), null);
 
     }
@@ -172,7 +173,7 @@ public class Worksheet {
 
         //https://poi.apache.org/apidocs/4.1/
         // Java LocalDate を Excel のシリアル値に変換し、文字列として挿入;
-        double serial = DateUtil.getExcelDate(value);
+        double serial = getDateSerial(value);
         setCellValueContent(address, String.valueOf(serial), null);
 
     }
@@ -186,9 +187,7 @@ public class Worksheet {
 
         //https://poi.apache.org/apidocs/4.1/
         // Java LocalTime を Excel のシリアル値に変換し、文字列として挿入;
-        String time = DateTimeFormatter.ofPattern("HH:mm").format(value);
-//        String time = DateTimeFormatter.ofPattern("HH:mm:ss").format(value);
-        double serial = DateUtil.convertTime(time);
+        double serial = getTimeSerial(value);
         setCellValueContent(address, String.valueOf(serial), null);
 
     }
@@ -424,6 +423,42 @@ public class Worksheet {
 
     }
     //------------------------------------------------------------------------------------------------
+    private double getDateSerial(LocalDateTime date) {
+
+        return getDateSerial(date.toLocalDate());
+
+    }
+    //------------------------------------------------------------------------------------------------
+    private double getDateSerial(LocalDate date) {
+
+        LocalDate origin = LocalDate.of(1900, 1, 1);
+        LocalDate ridge = LocalDate.of(1900, 2, 28);
+        return (double)ChronoUnit.DAYS.between(origin, date) + (date.isAfter(ChronoLocalDate.from(ridge)) ? 2 : 1);
+
+    }
+    //------------------------------------------------------------------------------------------------
+    private double getTimeSerial(LocalDateTime time) {
+
+        return getTimeSerial(time.toLocalTime());
+
+    }
+    //------------------------------------------------------------------------------------------------
+    private double getTimeSerial(LocalTime time) {
+
+        double h = (double)time.getHour() / 24;
+        double m = (double)time.getMinute() / (24 * 60);
+        double s = (double)time.getSecond() / (24 * 60 *60);
+        return h + m + s;
+
+    }
+    //------------------------------------------------------------------------------------------------
 
 }
 //----------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
